@@ -11,7 +11,7 @@ export class Transaction {
   @Prop()
   blockNumber: number;
 
-  @Prop()
+  @Prop({ index: true })
   timestamp: number;
 
   @Prop({ index: true, lowercase: true })
