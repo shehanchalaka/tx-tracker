@@ -35,4 +35,18 @@ export class EtherscanService {
 
     return { total: events.length, events };
   }
+
+  async getBlockNumber(): Promise<number> {
+    const response = await this.httpService.axiosRef.get(this.BASE_URL, {
+      params: {
+        module: 'proxy',
+        action: 'eth_blockNumber',
+        apikey: this.apiKey,
+      },
+    });
+
+    const blockNumber = parseInt(response.data.result, 16);
+
+    return blockNumber;
+  }
 }

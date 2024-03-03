@@ -5,6 +5,7 @@ import { EtherscanService } from '../../etherscan/etherscan.service';
 import { BinanceService } from '../../binance/binance.service';
 import { addMinutes, closestIndexTo, startOfMinute } from 'date-fns';
 import { TransactionsService } from '../../transactions/transactions.service';
+import { PoolsService } from '../../pools/pools.service';
 import BigNumber from 'bignumber.js';
 
 export function pow10(n: number): BigNumber {
@@ -19,6 +20,7 @@ export class MainProcessor extends WorkerHost {
     private etherscanService: EtherscanService,
     private binanceService: BinanceService,
     private transactionsService: TransactionsService,
+    private poolsService: PoolsService,
   ) {
     super();
   }
@@ -26,11 +28,10 @@ export class MainProcessor extends WorkerHost {
   async process(job: Job) {
     console.log('====== Started Processing ======');
 
-    const contractaddress = job.data.contractaddress;
-    const address = job.data.address;
-
-    const startBlock = 18344771;
-    const endBlock = startBlock + 100;
+    const contractaddress = job.data.contractaddress; // Token address
+    const address = job.data.address; // Pool address
+    const startBlock = job.data.startBlock;
+    const endBlock = job.data.endBlock;
 
     const { total, events } =
       await this.etherscanService.getTokenTransferEvents({
@@ -42,7 +43,16 @@ export class MainProcessor extends WorkerHost {
 
     if (total === 0) {
       // no transactions in the given block range
+      console.log(
+        `[X] No transactions found in the block range ${startBlock} - ${endBlock}`,
+      );
+
+      await this.poolsService.setCurrentBlock(address, endBlock);
+
+      return;
     }
+
+    console.log(`[0] ${total} new transactions found`);
 
     const startTime = addMinutes(parseInt(events[0].timeStamp) * 1000, -1);
     const endTime = addMinutes(parseInt(events[total - 1].timeStamp) * 1000, 1);
@@ -91,6 +101,10 @@ export class MainProcessor extends WorkerHost {
 
     await this.transactionsService.bulkUpdateTransactions(transactions);
 
-    console.log('Processing done!\n\n');
+    const _endBlock = Math.min(events[total - 1].blockNumber, endBlock);
+
+    await this.poolsService.setCurrentBlock(address, _endBlock);
+
+    console.log('[0] Processing done');
   }
 }

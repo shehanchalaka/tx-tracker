@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BinanceModule } from './binance/binance.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { PoolsModule } from './pools/pools.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { MongooseModule } from '@nestjs/mongoose';
     EtherscanModule,
     BinanceModule,
     TransactionsModule,
+    PoolsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

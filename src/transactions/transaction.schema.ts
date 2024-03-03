@@ -5,7 +5,7 @@ export type TransactionDocument = HydratedDocument<Transaction>;
 
 @Schema()
 export class Transaction {
-  @Prop({ index: true })
+  @Prop({ index: true, lowercase: true })
   hash: string;
 
   @Prop()
@@ -13,6 +13,9 @@ export class Transaction {
 
   @Prop()
   timestamp: number;
+
+  @Prop({ index: true, lowercase: true })
+  pool: string;
 
   @Prop()
   gasPrice: string;
