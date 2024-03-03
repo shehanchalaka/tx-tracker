@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pool, PoolDocument } from './pool.schema';
 import { Model } from 'mongoose';
@@ -23,7 +23,7 @@ export class PoolsService implements OnModuleInit {
       address: address.toLowerCase(),
     });
     if (!pool) {
-      throw new Error('Pool not found');
+      throw new NotFoundException('Pool not found');
     }
     return pool.currentBlock;
   }
@@ -32,20 +32,11 @@ export class PoolsService implements OnModuleInit {
     address: string,
     blockNumber: number,
   ): Promise<boolean> {
-    const pool = await this.poolModel.findOne({
-      address: address.toLowerCase(),
-    });
-    if (!pool) {
-      throw new Error('Pool not found');
-    }
+    const result = await this.poolModel.updateOne(
+      { address: address.toLowerCase() },
+      { $max: { currentBlock: blockNumber } },
+    );
 
-    if (blockNumber <= pool.currentBlock) {
-      return false;
-    }
-
-    pool.currentBlock = blockNumber;
-    await pool.save();
-
-    return true;
+    return result.modifiedCount > 0 && result.matchedCount > 0;
   }
 }
