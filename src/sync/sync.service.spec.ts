@@ -13,7 +13,8 @@ describe('SyncService', () => {
         {
           provide: getQueueToken(POLL_QUEUE),
           useValue: {
-            add: jest.fn(() => [{}]),
+            add: jest.fn(),
+            process: jest.fn(),
           },
         },
       ],

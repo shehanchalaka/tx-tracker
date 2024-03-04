@@ -20,6 +20,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@bull-board/api": "^5.14.2",
+    "@bull-board/express": "^5.14.2",
+    "@bull-board/nestjs": "^5.14.2",
+    "@hapi/joi": "^17.1.1",
     "@nestjs/axios": "^3.0.2",
     "@nestjs/bullmq": "^10.1.0",
     "@nestjs/common": "^10.3.3",
@@ -35,6 +39,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "date-fns": "^3.3.1",
+    "lodash": "^4.17.21",
     "mongoose": "^8.2.0",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"

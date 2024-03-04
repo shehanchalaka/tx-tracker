@@ -34,13 +34,16 @@ export class PollProcessor extends WorkerHost {
       this.logger.verbose('New blocks not found');
     }
 
-    const MAX_CRAWL_LIMIT = 20_000;
-    const blockDiff = Math.min(MAX_CRAWL_LIMIT - 1, blockNumber - currentBlock);
-    const endBlock = currentBlock + blockDiff;
+    const blockDiff = blockNumber - currentBlock;
 
     const main_job = await this.mainQueue.add(
       'main_job',
-      { contractaddress, address, startBlock: currentBlock, endBlock },
+      {
+        contractaddress,
+        address,
+        startBlock: currentBlock,
+        endBlock: blockNumber,
+      },
       { removeOnComplete: 10, removeOnFail: 10 },
     );
 

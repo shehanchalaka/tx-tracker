@@ -3,6 +3,7 @@ import { Cron } from '@nestjs/schedule';
 import { POLL_QUEUE } from './constants';
 import { Queue } from 'bullmq';
 import { InjectQueue } from '@nestjs/bullmq';
+import { USDC_WETH_POOL_INFO } from '../constants';
 
 @Injectable()
 export class SyncService {
@@ -10,12 +11,12 @@ export class SyncService {
 
   @Cron('*/10 * * * * *')
   async run() {
-    const USDC_ADDRESS = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-    const ETH_USDC_POOL_ADDRESS = '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640';
+    const contractaddress = USDC_WETH_POOL_INFO.token0;
+    const address = USDC_WETH_POOL_INFO.address;
 
     await this.pollQueue.add(
       'poll_job',
-      { contractaddress: USDC_ADDRESS, address: ETH_USDC_POOL_ADDRESS },
+      { contractaddress, address },
       { removeOnComplete: 10, removeOnFail: 10 },
     );
   }

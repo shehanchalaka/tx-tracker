@@ -34,9 +34,17 @@ export class EtherscanService {
       },
     });
 
-    const events = response.data.result;
+    let events = response.data.result;
+    let trimmed = false;
 
-    return { total: events.length, events };
+    // trim events in case etherscan response size limit is reached, to make sure we dont loose transactions
+    if (events.length === 10000) {
+      const _lastBlock = events[events.length - 1];
+      events = events.filter((t) => t.blockNumber != _lastBlock.blockNumber);
+      trimmed = true;
+    }
+
+    return { total: events.length, events, trimmed };
   }
 
   async getBlockNumber(): Promise<number> {
