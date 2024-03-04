@@ -73,4 +73,14 @@ describe('EtherscanService', () => {
       expect(result.events).toHaveLength(1);
     });
   });
+
+  describe('getBlockNumber', () => {
+    it('should return the current block number', async () => {
+      httpService.axiosRef.get = jest.fn().mockResolvedValueOnce({
+        data: { jsonrpc: '2.0', id: 83, result: '0x127764c' },
+      });
+      const result = await service.getBlockNumber();
+      expect(result).toEqual(19363404);
+    });
+  });
 });

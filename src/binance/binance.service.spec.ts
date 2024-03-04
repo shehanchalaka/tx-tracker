@@ -72,5 +72,35 @@ describe('BinanceService', () => {
       expect(result.total).toEqual(2);
       expect(result.klines).toHaveLength(2);
     });
+
+    it('should throw and error when an empty symbol is passed', async () => {
+      httpService.axiosRef.get = jest
+        .fn()
+        .mockRejectedValue(new Error("Parameter 'symbol' was empty."));
+      await expect(
+        service.getKlineData({
+          symbol: '',
+          interval: '5m',
+          startTime: 1704067200000, // 1 Jan 2024
+          endTime: 1706659200000, // 31 Jan 2024
+        }),
+      ).rejects.toThrow(new Error("Parameter 'symbol' was empty."));
+      expect(httpService.axiosRef.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw and error when an empty interval is passed', async () => {
+      httpService.axiosRef.get = jest
+        .fn()
+        .mockRejectedValue(new Error("Parameter 'interval' was empty."));
+      await expect(
+        service.getKlineData({
+          symbol: 'ETHUSDT',
+          interval: '',
+          startTime: 1704067200000, // 1 Jan 2024
+          endTime: 1706659200000, // 31 Jan 2024
+        }),
+      ).rejects.toThrow(new Error("Parameter 'interval' was empty."));
+      expect(httpService.axiosRef.get).toHaveBeenCalledTimes(1);
+    });
   });
 });
