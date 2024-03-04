@@ -24,6 +24,9 @@ export class Transaction {
   gasUsed: string;
 
   @Prop()
+  transactionFeeEth: string;
+
+  @Prop()
   transactionFee: number;
 }
 

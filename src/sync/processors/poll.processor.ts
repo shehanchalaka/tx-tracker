@@ -3,11 +3,14 @@ import { MAIN_QUEUE, POLL_QUEUE } from '../constants';
 import { Job, Queue } from 'bullmq';
 import { EtherscanService } from '../../etherscan/etherscan.service';
 import { PoolsService } from '../../pools/pools.service';
+import { Logger } from '@nestjs/common';
 
 @Processor(POLL_QUEUE, {
   limiter: { max: 1, duration: 1000 }, // max 1 request per 1000 milliseconds
 })
 export class PollProcessor extends WorkerHost {
+  private readonly logger = new Logger(PollProcessor.name);
+
   constructor(
     private etherscanService: EtherscanService,
     private poolsService: PoolsService,
@@ -18,7 +21,7 @@ export class PollProcessor extends WorkerHost {
   }
 
   async process(job: Job) {
-    console.log('[O] Polling...');
+    this.logger.verbose(`Polling for new blocks ${new Date().getTime()}`);
 
     const contractaddress = job.data.contractaddress; // USDT address
     const address = job.data.address; // WETH-USDC Pool address
@@ -28,20 +31,24 @@ export class PollProcessor extends WorkerHost {
     const currentBlock = await this.poolsService.getCurrentBlock(address);
 
     if (blockNumber <= currentBlock) {
-      console.log('[X] New blocks not found');
+      this.logger.verbose('New blocks not found');
     }
 
-    const blockDiff = Math.min(19_999, blockNumber - currentBlock);
-    const endBlock = currentBlock + blockDiff;
+    const blockDiff = blockNumber - currentBlock;
 
-    console.log('[O] New blocks found');
-
-    const mainJob = await this.mainQueue.add(
+    const main_job = await this.mainQueue.add(
       'main_job',
-      { contractaddress, address, startBlock: currentBlock, endBlock },
+      {
+        contractaddress,
+        address,
+        startBlock: currentBlock,
+        endBlock: blockNumber,
+      },
       { removeOnComplete: 10, removeOnFail: 10 },
     );
 
-    console.log(`[O] Job ${mainJob.id} added to queue`);
+    this.logger.verbose(
+      `${blockDiff} new blocks found. Job Id [${main_job.id}] added to queue`,
+    );
   }
 }

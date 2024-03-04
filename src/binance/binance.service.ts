@@ -1,21 +1,15 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { KlineDataDto } from './dtos/klineData.dto';
+import { KlineDataResponseEntity } from './entities/klineDataResponse.entity';
 
 @Injectable()
 export class BinanceService {
   private BASE_URL = 'https://api.binance.com';
-  private apiKey = '';
 
-  constructor(
-    private configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
-    this.apiKey = configService.get('BINANCE_API_KEY');
-  }
+  constructor(private readonly httpService: HttpService) {}
 
-  async getKlineData(params: KlineDataDto) {
+  async getKlineData(params: KlineDataDto): Promise<KlineDataResponseEntity> {
     const url = `${this.BASE_URL}/api/v3/klines`;
     const response = await this.httpService.axiosRef.get(url, {
       params: {

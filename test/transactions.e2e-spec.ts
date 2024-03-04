@@ -78,30 +78,113 @@ describe('TransactionsController (e2e)', () => {
         .expect(400)
         .expect(({ body }) => {
           expect(body.message).toContain('startTime must be a positive number');
+          expect(body.message).toContain('endTime must be a positive number');
+        });
+    });
+
+    it('should set the limit properly', async () => {
+      return request(app.getHttpServer())
+        .get('/transactions')
+        .query({
+          startTime: 1510250931,
+          endTime: 1730250931,
+          limit: 50,
+        })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.total).toEqual(1);
+          expect(body.limit).toEqual(50);
+          expect(body.results).toHaveLength(1);
+        });
+    });
+
+    it('should throw BadRequestException when limit is set to higher than 1000', async () => {
+      return request(app.getHttpServer())
+        .get('/transactions')
+        .query({
+          startTime: 1510250931,
+          endTime: 1730250931,
+          limit: 2000,
+        })
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body.message).toContain('limit must not be greater than 1000');
+        });
+    });
+
+    it('should throw BadRequestException when a negative limit is set', async () => {
+      return request(app.getHttpServer())
+        .get('/transactions')
+        .query({
+          startTime: 1510250931,
+          endTime: 1730250931,
+          limit: -10,
+        })
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body.message).toContain('limit must be a positive number');
+        });
+    });
+
+    it('should set the skip properly', async () => {
+      return request(app.getHttpServer())
+        .get('/transactions')
+        .query({
+          startTime: 1510250931,
+          endTime: 1730250931,
+          skip: 1,
+        })
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.total).toEqual(1);
+          expect(body.limit).toEqual(10);
+          expect(body.skip).toEqual(1);
+          expect(body.results).toHaveLength(0);
+        });
+    });
+
+    it('should throw BadRequestException when a negative skip is set', async () => {
+      return request(app.getHttpServer())
+        .get('/transactions')
+        .query({
+          startTime: 1510250931,
+          endTime: 1730250931,
+          skip: -10,
+        })
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body.message).toContain('skip must not be less than 0');
         });
     });
   });
 
-  it('/transactions/{hash} (GET)', () => {
-    return request(app.getHttpServer())
-      .get(
-        '/transactions/0x125e0b641d4a4b08806bf52c0c6757648c9963bcda8681e4f996f09e00d4c2cc',
-      )
-      .expect(200)
-      .expect(({ body }) => {
-        expect(body.hash).toEqual(mockTransaction.hash);
-      });
-  });
+  describe('/transactions/{hash} (GET)', () => {
+    it('should return a transaction when a valid hash is provided', () => {
+      return request(app.getHttpServer())
+        .get(
+          '/transactions/0x125e0b641d4a4b08806bf52c0c6757648c9963bcda8681e4f996f09e00d4c2cc',
+        )
+        .expect(200)
+        .expect(({ body }) => {
+          expect(body.hash).toEqual(mockTransaction.hash);
+        });
+    });
 
-  it('/transactions/{hash} (GET)', () => {
-    return request(app.getHttpServer())
-      .get(
-        '/transactions/0x125e0b641d4a4b08806bf52c0c6757648c9963bcda8681e4f996f09e00d4c2cb',
-      )
-      .expect(404);
-  });
+    it('should throw NotFoundException when transaction is not found in the database', () => {
+      return request(app.getHttpServer())
+        .get(
+          '/transactions/0x125e0b641d4a4b08806bf52c0c6757648c9963bcda8681e4f996f09e00d4c2cb',
+        )
+        .expect(404);
+    });
 
-  it('/transactions/{hash} (GET)', () => {
-    return request(app.getHttpServer()).get('/transactions/dummy').expect(400);
+    it('should throw BadRequestException when an invalid hash is provided', () => {
+      return request(app.getHttpServer())
+        .get('/transactions/dummy')
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body.message).toContain('hash must be a valid ethereum hash');
+        });
+    });
   });
 });

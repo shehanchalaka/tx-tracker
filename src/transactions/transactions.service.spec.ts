@@ -4,7 +4,8 @@ import { Transaction } from './transaction.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { TransactionEntity } from './entities/transaction.entity';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { TransactionsResponseEntity } from './entities/transactionsResponse.entity';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -41,6 +42,35 @@ describe('TransactionsService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('getTransactions', () => {
+    it('should return a list of transactions', async () => {
+      model.aggregate = jest
+        .fn()
+        .mockResolvedValue([{ total: 1, results: [mockTransaction] }]);
+      const result = await service.getTransactions({
+        startTime: 1510250931,
+        endTime: 1730250931,
+      });
+      expect(result).toBeInstanceOf(TransactionsResponseEntity);
+      expect(result).toMatchObject({
+        total: 1,
+        limit: 10,
+        skip: 0,
+        results: [mockTransaction],
+      });
+    });
+
+    it('should throw BadRequestException if startTime or endTime is missing', async () => {
+      model.aggregate = jest
+        .fn()
+        .mockResolvedValue([{ total: 1, results: [mockTransaction] }]);
+      await expect(
+        service.getTransactions({ startTime: null, endTime: null }),
+      ).rejects.toThrow(BadRequestException);
+      expect(model.aggregate).toHaveBeenCalledTimes(0);
+    });
+  });
+
   describe('getTransactionByHash', () => {
     it('should return a transaction when a valid hash is provided', async () => {
       model.findOne = jest.fn().mockImplementationOnce(() => ({
@@ -62,6 +92,25 @@ describe('TransactionsService', () => {
       expect(model.findOne).toHaveBeenCalledWith({
         hash: mockTransaction.hash,
       });
+    });
+  });
+
+  describe('bulkUpdateTransactions', () => {
+    it('should bulk write transactions', async () => {
+      model.bulkWrite = jest.fn().mockImplementationOnce(() => ({
+        isOk: jest.fn().mockResolvedValueOnce(true),
+      }));
+      const result = await service.bulkUpdateTransactions([mockTransaction]);
+      expect(model.bulkWrite).toHaveBeenCalledWith(
+        [mockTransaction].map((transaction) => ({
+          updateOne: {
+            filter: { hash: transaction.hash },
+            update: { $set: transaction },
+            upsert: true,
+          },
+        })),
+      );
+      expect(result).toEqual(true);
     });
   });
 });

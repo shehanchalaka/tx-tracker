@@ -70,26 +70,16 @@ export class TransactionsService {
     return plainToInstance(TransactionEntity, tx.toObject());
   }
 
-  async bulkUpdateTransactions(transactions: any[]) {
-    await this.transactionModel.bulkWrite(
-      transactions.map((tx) => ({
+  async bulkUpdateTransactions(transactions: any[]): Promise<boolean> {
+    const result = await this.transactionModel.bulkWrite(
+      transactions.map((transaction) => ({
         updateOne: {
-          filter: { hash: tx.hash },
-          update: {
-            $set: {
-              hash: tx.hash,
-              blockNumber: tx.blockNumber,
-              timestamp: tx.timestamp,
-              gasPrice: tx.gasPrice,
-              gasUsed: tx.gasUsed,
-              transactionFee: tx.transactionFee,
-            },
-          },
+          filter: { hash: transaction.hash },
+          update: { $set: transaction },
           upsert: true,
         },
       })),
     );
-
-    console.log('bulk updating transactions');
+    return result.isOk();
   }
 }

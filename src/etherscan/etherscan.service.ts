@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TokenTransferEventsDto } from './dtos/tokenTransferEvents.dto';
+import { TokenTransferEventsResponseEntity } from './entities/tokenTransferEventsResponse.entity';
 
 @Injectable()
 export class EtherscanService {
@@ -15,7 +16,9 @@ export class EtherscanService {
     this.apiKey = configService.get('ETHERSCAN_API_KEY');
   }
 
-  async getTokenTransferEvents(params: TokenTransferEventsDto) {
+  async getTokenTransferEvents(
+    params: TokenTransferEventsDto,
+  ): Promise<TokenTransferEventsResponseEntity> {
     const response = await this.httpService.axiosRef.get(this.BASE_URL, {
       params: {
         module: 'account',
@@ -31,9 +34,17 @@ export class EtherscanService {
       },
     });
 
-    const events = response.data.result;
+    let events = response.data.result;
+    let trimmed = false;
 
-    return { total: events.length, events };
+    // trim events in case etherscan response size limit is reached, to make sure we dont loose transactions
+    if (events.length === 10000) {
+      const _lastBlock = events[events.length - 1];
+      events = events.filter((t) => t.blockNumber != _lastBlock.blockNumber);
+      trimmed = true;
+    }
+
+    return { total: events.length, events, trimmed };
   }
 
   async getBlockNumber(): Promise<number> {

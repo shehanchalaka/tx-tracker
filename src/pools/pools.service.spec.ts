@@ -4,6 +4,7 @@ import { Pool } from './pool.schema';
 import { getModelToken } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 describe('PoolsService', () => {
   let service: PoolsService;
@@ -20,6 +21,7 @@ describe('PoolsService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PoolsService,
+        ConfigService,
         {
           provide: getModelToken(Pool.name),
           useValue: {
