@@ -5,7 +5,7 @@ export class TransactionsQueryDto {
   @ApiProperty({
     required: true,
     description: 'Start timestamp in seconds',
-    default: 1709337600,
+    default: 1697240003,
   })
   @IsNumber()
   @IsPositive()
@@ -14,7 +14,7 @@ export class TransactionsQueryDto {
   @ApiProperty({
     required: true,
     description: 'End timestamp in seconds',
-    default: 1709424000,
+    default: 1697240423,
   })
   @IsNumber()
   @IsPositive()

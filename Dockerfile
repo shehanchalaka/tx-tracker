@@ -1,35 +1,28 @@
 # build stage
-FROM node:21-alpine AS builder
+FROM node:21-alpine AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY --chown=node:node package*.json ./
+COPY package*.json ./
+
 RUN npm ci
-COPY --chown=node:node . .
 
-USER node
-
-# install stage
-FROM node:21-alpine AS installer
-
-WORKDIR /use/src/app
-
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node --from=builder /usr/src/app/node_modules ./node_modules 
-COPY --chown=node:node . .
+COPY . .
 
 RUN npm run build
-ENV NODE_ENV production
-RUN npm ci --only=production && npm cache clean --force
-
-USER node
 
 # run stage
-FROM node:21-alpine AS runner
+FROM node:21-alpine AS run
 
-WORKDIR /use/src/app
+ENV NODE_ENV production
 
-COPY --chown=node:node --from=installer /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=installer /usr/src/app/dist ./dist
+WORKDIR /app
+
+COPY --from=build /app/dist dist
+COPY --from=build /app/node_modules node_modules
+
+EXPOSE 3000
+
+USER node
 
 CMD [ "node", "dist/main.js" ]
