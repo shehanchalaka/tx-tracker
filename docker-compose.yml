@@ -22,22 +22,22 @@ services:
     networks:
       - my_network
 
-  # app:
-  #   image: tx-tracker
-  #   container_name: tx-tracker
-  #   restart: always
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - docker.env
-  #   ports:
-  #     - '3000:3000'
-  #   networks:
-  #     - my_network
-  #   depends_on:
-  #     - mongo
-  #     - redis
+  app:
+    image: tx-tracker
+    container_name: tx-tracker
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - docker.env
+    ports:
+      - '3000:3000'
+    networks:
+      - my_network
+    depends_on:
+      - mongo
+      - redis
 
 networks:
   my_network:
