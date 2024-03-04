@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Transaction, TransactionDocument } from './transaction.schema';
 import { Model } from 'mongoose';
@@ -19,8 +23,13 @@ export class TransactionsService {
   ): Promise<TransactionsResponseEntity> {
     const startTime = query.startTime;
     const endTime = query.endTime;
-    const limit = Math.min(query.limit, 1000);
-    const skip = query.skip;
+
+    if (!startTime || !endTime) {
+      throw new BadRequestException('startTime and endTime is required');
+    }
+
+    const limit = Math.min(query.limit ?? 10, 1000);
+    const skip = query.skip ?? 0;
 
     const [txs] = await this.transactionModel.aggregate([
       {
@@ -53,12 +62,12 @@ export class TransactionsService {
   }
 
   async getTransactionByHash(hash: string): Promise<TransactionEntity> {
-    const tx = await this.transactionModel.findOne({ hash }).lean();
+    const tx = await this.transactionModel.findOne({ hash });
     if (!tx) {
       throw new NotFoundException('Transaction not found');
     }
 
-    return plainToInstance(TransactionEntity, tx);
+    return plainToInstance(TransactionEntity, tx.toObject());
   }
 
   async bulkUpdateTransactions(transactions: any[]) {

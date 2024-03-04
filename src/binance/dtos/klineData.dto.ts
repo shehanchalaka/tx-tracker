@@ -4,5 +4,5 @@ export class KlineDataDto {
   startTime: number;
   endTime: number;
   timeZone?: string;
-  limit: number;
+  limit?: number;
 }

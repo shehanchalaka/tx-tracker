@@ -7,7 +7,7 @@ import { MainProcessor } from './processors/main.processor';
 import { EtherscanModule } from '../etherscan/etherscan.module';
 import { BinanceModule } from '../binance/binance.module';
 import { TransactionsModule } from '../transactions/transactions.module';
-import { PoolsModule } from 'src/pools/pools.module';
+import { PoolsModule } from '../pools/pools.module';
 
 @Module({
   imports: [
