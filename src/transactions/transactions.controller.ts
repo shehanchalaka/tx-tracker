@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { TransactionEntity } from './entities/transaction.entity';
-import { ParseHashPipe } from 'src/common/pipes/parseHash.pipe';
+import { ParseHashPipe } from '../common/pipes/parseHash.pipe';
 import { TransactionsResponseEntity } from './entities/transactionsResponse.entity';
 import { TransactionsQueryDto } from './dtos/transactionsQuery.dto';
 

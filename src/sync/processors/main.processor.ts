@@ -68,6 +68,8 @@ export class MainProcessor extends WorkerHost {
       limit: 1000,
     });
 
+    console.log(`[0] fetched klines`);
+
     const prices = klines.map((kline) => ({
       timestamp: new Date(kline[0]),
       price: kline[1],

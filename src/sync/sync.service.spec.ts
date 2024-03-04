@@ -1,12 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { SyncService } from './sync.service';
+import { getQueueToken } from '@nestjs/bullmq';
+import { POLL_QUEUE } from './constants';
 
 describe('SyncService', () => {
   let service: SyncService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [SyncService],
+      providers: [
+        SyncService,
+        {
+          provide: getQueueToken(POLL_QUEUE),
+          useValue: {
+            add: jest.fn(() => [{}]),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<SyncService>(SyncService);
