@@ -2,14 +2,22 @@ import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pool, PoolDocument } from './pool.schema';
 import { Model } from 'mongoose';
+import { USDC_WETH_POOL_INFO } from 'src/constants';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PoolsService implements OnModuleInit {
-  constructor(@InjectModel(Pool.name) private poolModel: Model<PoolDocument>) {}
+  constructor(
+    private configService: ConfigService,
+    @InjectModel(Pool.name) private poolModel: Model<PoolDocument>,
+  ) {}
 
   async onModuleInit() {
-    const address = '0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640';
-    const currentBlock = 12376729;
+    const appStartBlock = this.configService.get('APP_START_BLOCK');
+    const address = USDC_WETH_POOL_INFO.address;
+    const currentBlock = !!appStartBlock
+      ? appStartBlock
+      : USDC_WETH_POOL_INFO.createdBlock;
 
     await this.poolModel.updateOne(
       { address },

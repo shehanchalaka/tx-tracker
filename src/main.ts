@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,6 +35,9 @@ async function bootstrap() {
   });
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(3000);
+  const configService = app.get(ConfigService);
+  const PORT = configService.get('APP_PORT');
+
+  await app.listen(PORT);
 }
 bootstrap();
