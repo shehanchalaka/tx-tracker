@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BinanceService } from './binance.service';
 import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 
 describe('BinanceService', () => {
   let service: BinanceService;
@@ -44,7 +43,6 @@ describe('BinanceService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         BinanceService,
-        ConfigService,
         {
           provide: HttpService,
           useValue: {

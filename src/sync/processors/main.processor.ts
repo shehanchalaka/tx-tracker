@@ -7,6 +7,7 @@ import { addMinutes, closestIndexTo, startOfMinute } from 'date-fns';
 import { TransactionsService } from '../../transactions/transactions.service';
 import { PoolsService } from '../../pools/pools.service';
 import BigNumber from 'bignumber.js';
+import { Logger } from '@nestjs/common';
 
 export function pow10(n: number): BigNumber {
   return new BigNumber(10).pow(n);
@@ -16,6 +17,8 @@ export function pow10(n: number): BigNumber {
   limiter: { max: 1, duration: 1000 }, // max 1 request per 1000 milliseconds
 })
 export class MainProcessor extends WorkerHost {
+  private readonly logger = new Logger(MainProcessor.name);
+
   constructor(
     private etherscanService: EtherscanService,
     private binanceService: BinanceService,
@@ -26,7 +29,7 @@ export class MainProcessor extends WorkerHost {
   }
 
   async process(job: Job) {
-    console.log('====== Started Processing ======');
+    this.logger.verbose(`Started processing Job Id [${job.id}]`);
 
     const contractaddress = job.data.contractaddress; // Token address
     const address = job.data.address; // Pool address
@@ -43,8 +46,8 @@ export class MainProcessor extends WorkerHost {
 
     if (total === 0) {
       // no transactions in the given block range
-      console.log(
-        `[X] No transactions found in the block range ${startBlock} - ${endBlock}`,
+      this.logger.debug(
+        `No transactions found in the block range ${startBlock} - ${endBlock}`,
       );
 
       await this.poolsService.setCurrentBlock(address, endBlock);
@@ -52,7 +55,7 @@ export class MainProcessor extends WorkerHost {
       return;
     }
 
-    console.log(`[0] ${total} new transactions found`);
+    this.logger.verbose(`Fetched ${total} transactions`);
 
     const startTime = addMinutes(parseInt(events[0].timeStamp) * 1000, -1);
     const endTime = addMinutes(parseInt(events[total - 1].timeStamp) * 1000, 1);
@@ -68,7 +71,7 @@ export class MainProcessor extends WorkerHost {
       limit: 1000,
     });
 
-    console.log(`[0] fetched klines`);
+    this.logger.verbose(`Fetched ${klines.length} klines`);
 
     const prices = klines.map((kline) => ({
       timestamp: new Date(kline[0]),
@@ -97,16 +100,17 @@ export class MainProcessor extends WorkerHost {
         timestamp: event.timeStamp,
         gasPrice: event.gasPrice,
         gasUsed: event.gasUsed,
+        transactionFeeEth: transactionFeeEthBN.toString(),
         transactionFee: transactionFeeUsdtBN.toNumber(),
       };
     });
 
     await this.transactionsService.bulkUpdateTransactions(transactions);
 
-    const _endBlock = Math.min(events[total - 1].blockNumber, endBlock);
+    const _endBlock = Math.min(+events[total - 1].blockNumber, endBlock);
 
     await this.poolsService.setCurrentBlock(address, _endBlock);
 
-    console.log('[0] Processing done');
+    this.logger.verbose(`Processing done Job Id ${job.id}`);
   }
 }

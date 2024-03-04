@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Pool, PoolDocument } from './pool.schema';
 import { Model } from 'mongoose';
-import { USDC_WETH_POOL_INFO } from 'src/constants';
+import { USDC_WETH_POOL_INFO } from '../constants';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
