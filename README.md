@@ -2,9 +2,9 @@
 
 Before proceeding make sure you have the following;
 
-1. [Node.js](https://nodejs.org/en/download) (v20.11.1) installed
-2. [Docker](https://docs.docker.com/engine/install/) Installed.
-3. Api key from Etherscan. Click [here](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics) to get one.
+1. [Node.js](https://nodejs.org/en/download){:target="_blank"} (v20.11.1) installed
+2. [Docker](https://docs.docker.com/engine/install/){:target="_blank"} Installed.
+3. Api key from Etherscan. Click [here](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics){:target="_blank"} to get one.
 4. MongoDB and Redis installed. You can run with docker [see below](#run-with-docker)
 
 Create `.env` and configure variables. Refer to `.env.example`
@@ -38,6 +38,7 @@ npm run test
 ```
 
 To run integration tests.
+
 **NOTE: Before running you must have a mongodb and redis instance running**
 
 ```bash
@@ -76,8 +77,8 @@ docker compose up -d
 
 ## API Docs
 
-Swagger UI can be accessed on http://localhost:3000/docs
+Swagger UI can be accessed on [http://localhost:3000/docs](http://localhost:3000/docs){:target="_blank"}
 
 ## Bull dashboard
 
-Bull dashboard can be accessed on http://localhost:3000/sync/queues
+Bull dashboard can be accessed on [http://localhost:3000/sync/queues](http://localhost:3000/docs){:target="_blank"}
