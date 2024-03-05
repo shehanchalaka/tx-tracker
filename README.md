@@ -12,8 +12,8 @@ Create `.env` and configure variables. Refer to `.env.example`
 ```bash
 cp .env.example .env
 ```
-**NOTE: make sure to set ETHERSCAN_API_KEY**
-**NOTE: you can set APP_START_BLOCK to override the sync start block**
+
+**NOTE: make sure to set ETHERSCAN_API_KEY. You can set APP_START_BLOCK to override the sync start block**
 
 Install dependencies
 
@@ -68,9 +68,9 @@ docker compose up mongo redis -d
 
 If you want to spin up the app with docker make sure to configure `docker.env` file first. Refer to `.env.example`. You can spin up the app using the command below.
 
-```bash
-cp .env.example docker.env
+**NOTE: make sure to set ETHERSCAN_API_KEY**
 
+```bash
 docker compose up -d
 ```
 
