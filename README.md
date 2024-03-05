@@ -38,7 +38,7 @@ npm run test
 ```
 
 To run integration tests.
-**NOTE: Before running you must have a mongodb instance running**
+**NOTE: Before running you must have a mongodb and redis instance running**
 
 ```bash
 npm run test:e2e
