@@ -12,6 +12,7 @@ import { Queue } from 'bullmq';
 import { ExpressAdapter } from '@bull-board/express';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { SyncController } from './sync.controller';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
     PoolsModule,
   ],
   providers: [SyncService, PollProcessor, MainProcessor],
+  controllers: [SyncController],
 })
 export class SyncModule implements NestModule {
   constructor(

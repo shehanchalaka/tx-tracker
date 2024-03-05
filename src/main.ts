@@ -7,6 +7,7 @@ import {
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
+import { SyncModule } from './sync/sync.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -37,7 +38,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config, {
-    include: [TransactionsModule],
+    include: [TransactionsModule, SyncModule],
   });
   SwaggerModule.setup('docs', app, document);
 
