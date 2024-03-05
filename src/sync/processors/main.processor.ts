@@ -12,10 +12,8 @@ import { TransactionsService } from '../../transactions/transactions.service';
 import { PoolsService } from '../../pools/pools.service';
 import BigNumber from 'bignumber.js';
 import { Logger } from '@nestjs/common';
-
-export function pow10(n: number): BigNumber {
-  return new BigNumber(10).pow(n);
-}
+import { pow10 } from '../../common/utils';
+import { MainJobDto } from '../dtos/manJob.dto';
 
 @Processor(MAIN_QUEUE, {
   limiter: { max: 1, duration: 1000 }, // max 1 request per 1000 milliseconds
@@ -32,7 +30,7 @@ export class MainProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job) {
+  async process(job: Job<MainJobDto>) {
     this.logger.verbose(`Started processing Job Id [${job.id}]`);
 
     const contractaddress = job.data.contractaddress; // Token address
@@ -54,7 +52,7 @@ export class MainProcessor extends WorkerHost {
         `No transactions found in the block range ${startBlock} - ${endBlock}`,
       );
       await this.poolsService.setCurrentBlock(address, endBlock);
-      return;
+      return { status: -1 };
     }
 
     this.logger.verbose(`Fetched ${total} transactions`);
@@ -74,7 +72,7 @@ export class MainProcessor extends WorkerHost {
 
     if (prices.length === 0) {
       this.logger.error(`Unable to find prices. Abroting processing`);
-      return;
+      return { status: -2 };
     }
 
     this.logger.verbose(`Fetched ${prices.length} klines`);
@@ -90,7 +88,7 @@ export class MainProcessor extends WorkerHost {
       const ethPriceUsdt = result.price;
 
       if (Math.abs(differenceInMinutes(timestamp, result.timestamp)) >= 5) {
-        console.log('errrr!! diff to muxh');
+        this.logger.warn('Timestamp difference to much');
       }
 
       const gasPriceBN = new BigNumber(event.gasPrice).div(pow10(18));
@@ -122,6 +120,8 @@ export class MainProcessor extends WorkerHost {
     this.logger.verbose(
       `Processing done till block number ${endBlock} Job Id [${job.id}]`,
     );
+
+    return { status: 1, transactions };
   }
 
   async getPrices(startTime: number, endTime: number) {
