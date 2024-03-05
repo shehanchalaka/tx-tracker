@@ -4,6 +4,7 @@ import { Job, Queue } from 'bullmq';
 import { EtherscanService } from '../../etherscan/etherscan.service';
 import { PoolsService } from '../../pools/pools.service';
 import { Logger } from '@nestjs/common';
+import { USDC_WETH_POOL_INFO } from '../../constants';
 
 @Processor(POLL_QUEUE, {
   limiter: { max: 1, duration: 1000 }, // max 1 request per 1000 milliseconds
@@ -23,8 +24,8 @@ export class PollProcessor extends WorkerHost {
   async process(job: Job) {
     this.logger.verbose(`Polling for new blocks ${new Date().getTime()}`);
 
-    const contractaddress = job.data.contractaddress; // USDT address
-    const address = job.data.address; // WETH-USDC Pool address
+    const contractaddress = USDC_WETH_POOL_INFO.token0; // USDT address
+    const address = USDC_WETH_POOL_INFO.address; // USDC-WETH Pool address
 
     const blockNumber = await this.etherscanService.getBlockNumber();
 
@@ -32,6 +33,7 @@ export class PollProcessor extends WorkerHost {
 
     if (blockNumber <= currentBlock) {
       this.logger.verbose('New blocks not found');
+      return { status: -1 };
     }
 
     const blockDiff = blockNumber - currentBlock;
@@ -50,5 +52,7 @@ export class PollProcessor extends WorkerHost {
     this.logger.verbose(
       `${blockDiff} new blocks found. Job Id [${main_job.id}] added to queue`,
     );
+
+    return { status: 1 };
   }
 }
