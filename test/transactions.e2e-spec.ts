@@ -5,10 +5,10 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import * as request from 'supertest';
-import { TransactionsModule } from './../src/transactions/transactions.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Reflector } from '@nestjs/core';
+import { AppModule } from '../src/app.module';
 
 const dbUri = 'mongodb://localhost:27017/e2e_test';
 
@@ -37,7 +37,7 @@ describe('TransactionsController (e2e)', () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [MongooseModule.forRoot(dbUri), TransactionsModule],
+      imports: [MongooseModule.forRoot(dbUri), AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
