@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionsController } from './transactions.controller';
 import { TransactionsService } from './transactions.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('TransactionsController', () => {
   let controller: TransactionsController;
@@ -26,6 +27,10 @@ describe('TransactionsController', () => {
             getTransactionByHash: jest.fn(() => ({})),
             bulkUpdateTransactions: jest.fn(() => ({})),
           },
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {},
         },
       ],
     }).compile();
