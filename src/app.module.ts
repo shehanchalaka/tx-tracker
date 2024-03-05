@@ -11,6 +11,9 @@ import { TransactionsModule } from './transactions/transactions.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PoolsModule } from './pools/pools.module';
 import * as Joi from '@hapi/joi';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+import type { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -40,6 +43,17 @@ import * as Joi from '@hapi/joi';
           port: configService.get('REDIS_PORT'),
         },
       }),
+    }),
+    CacheModule.registerAsync<RedisClientOptions>({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
+        ttl: 10,
+      }),
+      inject: [ConfigService],
     }),
     SyncModule,
     EtherscanModule,
