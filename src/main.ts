@@ -2,13 +2,17 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { TransactionsModule } from './transactions/transactions.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
+import { SyncModule } from './sync/sync.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -17,12 +21,16 @@ async function bootstrap() {
       forbidUnknownValues: true,
     }),
   );
-
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
       excludeExtraneousValues: true,
     }),
   );
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+    prefix: 'v',
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Tokka Labs Challenge')
@@ -30,7 +38,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config, {
-    include: [TransactionsModule],
+    include: [TransactionsModule, SyncModule],
   });
   SwaggerModule.setup('docs', app, document);
 
