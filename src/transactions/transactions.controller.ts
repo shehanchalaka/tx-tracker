@@ -1,12 +1,14 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TransactionsService } from './transactions.service';
 import { TransactionEntity } from './entities/transaction.entity';
 import { ParseHashPipe } from '../common/pipes/parseHash.pipe';
 import { TransactionsResponseEntity } from './entities/transactionsResponse.entity';
 import { TransactionsQueryDto } from './dtos/transactionsQuery.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @ApiTags('Transactions')
+@UseInterceptors(CacheInterceptor)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private transactionsService: TransactionsService) {}
