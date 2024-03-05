@@ -41,6 +41,20 @@ To run integration tests.
 npm run test:e2e
 ```
 
+To build the app
+
+```bash
+npm run build
+```
+
+## Build with docker
+
+To build a docker image you can run the following command
+
+```bash
+docker build -t tx-tracker .
+```
+
 ## Run with docker
 
 If you want to spin up the server in development mode with `npm run start:dev` you can start only `mongo` and `redis` containers using command below.
