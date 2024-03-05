@@ -2,15 +2,17 @@
 
 Before proceeding make sure you have the following;
 
-1. Node.js (v20.11.1)
+1. Node.js (v20.11.1) installed
 2. Api key from Etherscan. Click [here](https://docs.etherscan.io/getting-started/viewing-api-usage-statistics) to get one.
-3. MongoDB and Redis installed. You can run with docker [see below](#Run-with-docker)
+3. MongoDB and Redis installed. You can run with docker [see below](#run-with-docker)
 
 Create `.env` and configure variables. Refer to `.env.example`
 
 ```bash
 cp .env.example .env
 ```
+
+NOTE: you can set APP_START_BLOCK to override the sync start block
 
 Install dependencies
 
@@ -23,6 +25,8 @@ To start the server in development mode
 ```bash
 npm run start:dev
 ```
+
+After runing the server you can access the app on http://localhost:3000
 
 To run unit tests
 
@@ -39,14 +43,24 @@ npm run test:e2e
 
 ## Run with docker
 
-If you want to spin up the server in development mode with `npm run start:dev` you can start `mongo` and `redis` containers using command below.
+If you want to spin up the server in development mode with `npm run start:dev` you can start only `mongo` and `redis` containers using command below.
 
 ```bash
-docker compose up mondo redis -d
+docker compose up mongo redis -d
 ```
 
 If you want to spin up the app with docker make sure to configure `docker.env` file first. Refer to `.env.example`. You can spin up the app using the command below.
 
 ```bash
+cp .env.example docker.env
+
 docker compose up -d
 ```
+
+## API Docs
+
+Swagger UI can be accessed on http://localhost:3000/docs
+
+## Bull dashboard
+
+Bull dashboard can be accessed on http://localhost:3000/sync/queues
